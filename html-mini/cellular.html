@@ -11,14 +11,13 @@
 		<script type="text/javascript">
 			var world;
 			window.onload = function () {
-				if ((navigator.platform === 'iPad' || navigator.platform === 'iPhone')
-				    && "epubReadingSystem" in navigator
-				    && navigator.epubReadingSystem.name === 'iBooks') {
-				    // Add a margin to the top for iBooks on iPad and iPhone, where a black bar
-				    // can sit across the top, blocking access to the widget's controls.
-			        document.body.style.marginTop = "88px";
-				}
 				world = new WorldMorph(document.getElementById('world'));
+              	if ((navigator.platform === 'iPad' || navigator.platform === 'iPhone')
+                	&& window.location.protocol.startsWith('ibooks')){
+                	// Add a offset margin for iBooks on iPad and iPhone, where a black bar
+                	// can sit across the top, blocking access to the widget's controls.
+                	world.setMarginOffset(0, 54);
+              	}
 				var ide = new IDE_Morph();
                 ide.openIn(world);
                 window.onInteractiveLoad = function() {
@@ -36,7 +35,7 @@
 			}
 		</script>
 	</head>
-	<body style="margin: 0;">
+	<body style="margin: 0; background-color: black">
 		<canvas id="world" tabindex="1" style="position: absolute;" />
     </body>
 </html>

@@ -10058,8 +10058,19 @@ WorldMorph.prototype.init = function (aCanvas, fillPage) {
     this.activeHandle = null;
     this.virtualKeyboard = null;
 
+    this.marginOffset = new Point(0, 0); // margin from the viewport
+
     this.initEventListeners();
 };
+
+WorldMorph.prototype.setMarginOffset = function (x, y) {
+  var newX = (typeof x === 'number' && x > 0) ? x : 0;
+  var newY = (typeof y === 'number' && y > 0) ? y : 0;
+  this.marginOffset = new Point(newX, newY);
+  if (this.useFillPage) {
+    this.fillPage();
+  }
+}
 
 // World Morph display:
 
@@ -10122,28 +10133,30 @@ WorldMorph.prototype.doOneCycle = function () {
 
 WorldMorph.prototype.fillPage = function () {
     var pos = getDocumentPositionOf(this.worldCanvas),
-        clientHeight = window.innerHeight,
-        clientWidth = window.innerWidth,
+        clientHeight = window.innerHeight - this.marginOffset.y,
+        clientWidth = window.innerWidth - this.marginOffset.x,
         myself = this;
 
+    if (pos.x !== this.marginOffset.x) {
+        this.worldCanvas.style.position = "absolute";
+        this.worldCanvas.style.left = this.marginOffset.x + 'px';
+        pos.x = this.marginOffset.x;
+    }
+    if (pos.y !== this.marginOffset.y) {
+        this.worldCanvas.style.position = "absolute";
+        this.worldCanvas.style.top = this.marginOffset.y + 'px';
+        pos.y = this.marginOffset.y;
+    }
 
-    if (pos.x > 0) {
-        this.worldCanvas.style.position = "absolute";
-        this.worldCanvas.style.left = "0px";
-        pos.x = 0;
-    }
-    if (pos.y > 0) {
-        this.worldCanvas.style.position = "absolute";
-        this.worldCanvas.style.top = "0px";
-        pos.y = 0;
-    }
-    if (document.documentElement.scrollTop) {
+    var rootElement = document.documentElement;
+
+    if (rootElement.scrollTop) {
         // scrolled down b/c of viewport scaling
-        clientHeight = document.documentElement.clientHeight;
+        clientHeight = rootElement.clientHeight - this.marginOffset.y;
     }
-    if (document.documentElement.scrollLeft) {
+    if (rootElement.scrollLeft) {
         // scrolled left b/c of viewport scaling
-        clientWidth = document.documentElement.clientWidth;
+        clientWidth = rootElement.clientWidth - this.marginOffset.x;
     }
     if (this.worldCanvas.width !== clientWidth) {
         this.worldCanvas.width = clientWidth;
